@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import {AngularFirestore} from '@angular/fire/firestore';
+
 
 export interface Product {
   id: number;
@@ -19,14 +21,24 @@ export class CartService {
     { id: 2, name: 'Gaseosa', price: 5000, amount: 0 ,img:"https://i.pinimg.com/originals/1b/9a/a9/1b9aa9f2d25e6df970c18df4c17333dd.jpg"},
     { id: 3, name: 'ensalada', price: 7000, amount: 0 ,img:"https://i.pinimg.com/originals/1b/9a/a9/1b9aa9f2d25e6df970c18df4c17333dd.jpg"}
   ];
- 
+
+
   private cart = [];
   private cartItemCount = new BehaviorSubject(0);
  
-  constructor() {}
+  constructor( private db : AngularFirestore ) {
+    this.db.collection('Product').snapshotChanges().subscribe( snapshots => {
+        snapshots.map( snapshot => {
+            const data: Product = snapshot.payload.doc.data() as Product ;
+            data.id = snapshot.payload.doc.id;
+            console.log(data)
+            })
+    })
+  }
  
   getProducts() {
     return this.data;
+
   }
  
   getCart() {
